@@ -4,21 +4,24 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
-| Guest Routes (auth belum login)
+| Guest Routes (belum login)
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return redirect()->route('login');
+Route::get('/', fn() => redirect()->route('login'));
+
+// Login & Register
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/login', 'showLogin')->name('login');
+    Route::post('/login', 'login');
+    Route::get('/register', 'showRegister')->name('register');
+    Route::post('/register', 'register');
+    Route::post('/logout', 'logout')->name('logout');
 });
-
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
 
 /*
 |--------------------------------------------------------------------------
@@ -26,14 +29,13 @@ Route::post('/register', [AuthController::class, 'register']);
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'isAdmin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard'); // resources/views/dashboard.blade.php
-    })->name('dashboard');
+    // Dashboard admin
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    // CRUD Buku hanya bisa Admin
+    // CRUD Buku (khusus admin)
     Route::resource('books', BookController::class);
 
-    // Admin juga bisa lihat semua booking
+    // Admin lihat semua booking
     Route::get('/admin/bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
 });
 
@@ -44,17 +46,12 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 */
 Route::middleware(['auth'])->group(function () {
     // Dashboard user
-    Route::get('/dashboard/user', function () {
-        return view('user.dashboard'); // resources/views/user/dashboard.blade.php
-    })->name('dashboard.user');
+    Route::get('/dashboard/user', [UserController::class, 'index'])->name('dashboard.user');
 
-    // User lihat buku
+    // User hanya bisa lihat daftar buku (bukan CRUD)
     Route::get('/user/books', [BookController::class, 'index'])->name('user.books.index');
 
-    // Booking
+    // User bisa booking & return
     Route::post('/books/{book}/book', [BookingController::class, 'store'])->name('books.book');
     Route::post('/bookings/{booking}/return', [BookingController::class, 'returnBook'])->name('bookings.return');
-
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
