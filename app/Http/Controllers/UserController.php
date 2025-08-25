@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Book;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -13,15 +14,28 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil 5 booking terakhir milik user
-        $latestBookings = Booking::with('book')
-            ->where('user_id', $user->id)
+        // Total booking user ini
+        $bookingsCount = $user->bookings()->count();
+
+        // Booking terbaru user ini
+        $latestBookings = $user->bookings()
+            ->with('book')
             ->latest()
             ->take(5)
             ->get();
 
+        // Total buku di sistem
         $booksCount = Book::count();
 
-        return view('user.dashboard', compact('user', 'latestBookings', 'booksCount'));
+        // Total semua user
+        $usersCount = User::count();
+
+        return view('user.dashboard', compact(
+            'user',
+            'bookingsCount',
+            'latestBookings',
+            'booksCount',
+            'usersCount'
+        ));
     }
 }

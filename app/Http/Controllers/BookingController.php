@@ -2,37 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
 use App\Models\Booking;
-use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    // List semua booking
+    // Admin: lihat semua booking
     public function index()
     {
-        $bookings = Booking::with('book')->latest()->paginate(5);
+        $bookings = Booking::with(['user', 'book'])
+            ->latest()
+            ->paginate(10);
+
         return view('bookings.index', compact('bookings'));
     }
 
-    // Simpan booking baru
-    public function store(Request $request, $bookId)
-    {
-        $book = Book::findOrFail($bookId);
-
-        Booking::create([
-            'book_id'   => $book->id,
-            'user_id' => $request->user_name ?? 'Guest', // nanti bisa ganti pakai auth()->user()->name
-            'booked_at  ' => now(),
-        ]);
-
-        return redirect()->route('bookings.index')->with('success', 'Book has been booked!');
-    }
-
-    // Batalkan booking
+    // Admin: hapus booking
     public function destroy(Booking $booking)
     {
         $booking->delete();
-        return redirect()->route('bookings.index')->with('success', 'Booking canceled.');
+
+        return redirect()->route('admin.bookings.index')
+                         ->with('success', 'Booking deleted successfully.');
     }
 }

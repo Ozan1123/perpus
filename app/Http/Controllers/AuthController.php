@@ -2,16 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
     public function showLogin()
     {
         return view('auth.login');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            // Admin check mendukung 'role' atau 'is_admin'
+            $isAdmin = ($user->role ?? null) === 'admin'
+                || (isset($user->is_admin) && (int)$user->is_admin === 1);
+
+            return $isAdmin
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('user.dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Invalid credentials.',
+        ])->onlyInput('email');
     }
 
     public function showRegister()
@@ -21,39 +46,27 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-      'password' => 'required|string|min:6',
-]);
-
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
-        return redirect()->route('login')->with('success', 'Register berhasil, silakan login!');
-    }
-
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+        // Default user biasa
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            // Kalau skema lu pakai 'role':
+            'role'     => 'user',
+            // Kalau skema lu pakai 'is_admin' juga ada, pastiin false:
+            'is_admin' => false,
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            if (Auth::user()->role === 'admin') {
-                return redirect()->route('dashboard');
-            }
-            return redirect()->route('dashboard.user');
-        }
+        Auth::login($user);
+        
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ]);
+        return redirect()->route('login')->with('success', 'Registration successful! Please login.');
     }
 
     public function logout(Request $request)
@@ -65,3 +78,4 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 }
+

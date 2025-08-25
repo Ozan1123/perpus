@@ -4,23 +4,25 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
- class IsAdmin
+class IsAdmin
+{
+    public function handle(Request $request, Closure $next)
     {
-        /**
-         * Handle an incoming request.
-         */
-        public function handle(Request $request, Closure $next): Response
-        {
-            if(!Auth::check()){
-                return redirect()->route('login');
-            }
-            if (Auth::user()->role === 'admin') {
-                return $next($request);
-            }
+        $user = Auth::user();
 
-            return redirect()->route('dashboard.user');
+        $isAdmin = false;
+        if ($user) {
+            $isAdmin = ($user->role ?? null) === 'admin'
+                || (isset($user->is_admin) && (int)$user->is_admin === 1);
         }
+
+        if ($isAdmin) {
+            return $next($request);
+        }
+
+        return redirect()->route('user.dashboard');
     }
+}
+            

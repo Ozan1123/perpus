@@ -7,10 +7,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-@if(session('success'))
-  <div class="bg-green-500 text-white p-3 rounded mb-4">
-    {{ session('success') }}
-  </div>
+@if (session('success'))
+    <div class="mb-4 flex items-center p-4 text-green-800 rounded-lg bg-green-100 border border-green-300" role="alert">
+        <svg class="flex-shrink-0 w-5 h-5 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span class="text-sm font-medium">{{ session('success') }}</span>
+    </div>
 @endif
 
 

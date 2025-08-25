@@ -1,20 +1,24 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BookController;        // Admin CRUD Books
+use App\Http\Controllers\BookingController;     // Admin view Bookings
 use App\Http\Controllers\UserController;
+
+// Controller khusus user
+use App\Http\Controllers\User\BookController as UserBookController;
+use App\Http\Controllers\User\BookingController as UserBookingController;
 
 /*
 |--------------------------------------------------------------------------
-| Guest Routes (belum login)
+| Guest Routes
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn() => redirect()->route('login'));
 
-// Login & Register
+// Auth Routes
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLogin')->name('login');
     Route::post('/login', 'login');
@@ -28,15 +32,27 @@ Route::controller(AuthController::class)->group(function () {
 | Admin Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'isAdmin'])->group(function () {
-    // Dashboard admin
+Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    // CRUD Buku (khusus admin)
+    // Resource asli (books)
     Route::resource('books', BookController::class);
 
-    // Admin lihat semua booking
-    Route::get('/admin/bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
+    // Alias supaya nggak error Route [admin.books.*]
+    Route::get('/books', [BookController::class, 'index'])->name('books.index');
+    Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
+    Route::post('/books', [BookController::class, 'store'])->name('books.store');
+    Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
+    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+
+    // Booking (Admin only)
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+
+    // Export bookings
+    Route::get('/bookings/export', [BookingController::class, 'export'])->name('bookings.export');
 });
 
 /*
@@ -44,14 +60,13 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 | User Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
-    // Dashboard user
-    Route::get('/dashboard/user', [UserController::class, 'index'])->name('dashboard.user');
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
 
-    // User hanya bisa lihat daftar buku (bukan CRUD)
-    Route::get('/user/books', [BookController::class, 'index'])->name('user.books.index');
+    Route::get('/books', [UserBookController::class, 'index'])->name('books.index');
+    Route::get('/books/{book}', [UserBookController::class, 'show'])->name('books.show');
+    Route::post('/books/{book}/book', [UserBookController::class, 'book'])->name('books.book');
 
-    // User bisa booking & return
-    Route::post('/books/{book}/book', [BookingController::class, 'store'])->name('books.book');
-    Route::post('/bookings/{booking}/return', [BookingController::class, 'returnBook'])->name('bookings.return');
+    Route::get('/bookings', [UserBookingController::class, 'index'])->name('bookings.index');
+    Route::delete('/bookings/{booking}', [UserBookingController::class, 'destroy'])->name('bookings.destroy');
 });
