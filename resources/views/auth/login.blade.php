@@ -27,7 +27,7 @@
 
   <!-- Navbar -->
   <header class="flex justify-between items-center p-6 text-white relative z-10">
-    <div class="text-2xl font-bold">Beta Dummy</div>
+    <div class="text-2xl font-bold">Login Page</div>
     {{-- <a href="/" class="hover:underline">Home</a> --}}
   </header>
 
@@ -68,14 +68,14 @@
         </button>
       </form>
 
-      <div class="mt-6 text-center text-sm">
+      {{-- <div class="mt-6 text-center text-sm">
         <p class="text-gray-200 mb-2">Or continue with</p>
         <div class="flex justify-center space-x-3">
           <a href="#" class="bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30">Google</a>
           <a href="#" class="bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30">Facebook</a>
           <a href="#" class="bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30">GitHub</a>
         </div>
-      </div>
+      </div> --}}
 
       <p class="mt-6 text-center text-sm text-gray-200">
         Don’t have an account? <a href="/register" class="text-white font-bold hover:underline">Sign up</a>

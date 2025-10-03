@@ -115,12 +115,12 @@
                     </svg>
                     Peminjaman Terbaru
                 </h3>
-                <a href="#" class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center">
-                    Lihat Semua
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <p  class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center">
+                    Status Pinjaman
+                    <!-- <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
+                    </svg> -->
+                </p>
             </div>
         </div>
 
