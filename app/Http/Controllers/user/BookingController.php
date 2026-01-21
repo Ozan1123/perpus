@@ -27,8 +27,18 @@ class BookingController extends Controller
             abort(403); // tidak boleh hapus booking orang lain
         }
 
+        // Kembalikan stok jika dibatalkan (opsional, tergantung logic bisnis apakah 'batal' sama dengan 'kembali')
+        // Disini kita asumsi 'destroy' adalah cancel sebelum diambil, jadi kembalikan stok.
+        $booking->book->increment('stock');
+
         $booking->delete();
 
         return back()->with('success', 'Booking berhasil dibatalkan.');
+    }
+
+    public function returnBook(Booking $booking)
+    {
+        // Pengembalian hanya lewat admin
+        return back()->with('error', 'Pengembalian buku hanya dapat dilakukan oleh Admin Perpustakaan.');
     }
 }

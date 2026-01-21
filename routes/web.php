@@ -16,6 +16,7 @@ use App\Http\Controllers\User\BookingController as UserBookingController;
 | Guest Routes
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', fn() => redirect()->route('login'));
 
 // Auth Routes
@@ -52,7 +53,15 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
 
     // Export bookings
+    // Export bookings
     Route::get('/bookings/export', [BookingController::class, 'export'])->name('bookings.export');
+
+    // Create & Store Booking
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+
+    // Return Booking
+    Route::post('/bookings/{booking}/return', [BookingController::class, 'returnBook'])->name('bookings.return');
 });
 
 /*
@@ -68,5 +77,6 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::post('/books/{book}/book', [UserBookController::class, 'book'])->name('books.book');
 
     Route::get('/bookings', [UserBookingController::class, 'index'])->name('bookings.index');
+    Route::post('/bookings/{booking}/return', [UserBookingController::class, 'returnBook'])->name('bookings.return');
     Route::delete('/bookings/{booking}', [UserBookingController::class, 'destroy'])->name('bookings.destroy');
 });

@@ -13,6 +13,8 @@ class Booking extends Model
         'user_id',
         'book_id',
         'booked_at',
+        'returned_at',
+        'status',
     ];
 
     public function user()
@@ -26,7 +28,7 @@ class Booking extends Model
     }
 
     protected $casts = [
-    'booked_at' => 'datetime',
+        'booked_at' => 'datetime',
+        'returned_at' => 'datetime',
     ];
-
 }

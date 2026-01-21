@@ -12,9 +12,9 @@ class BookController extends Controller
         $search = $request->input('search');
 
         $books = Book::when($search, function ($query, $search) {
-                return $query->where('title', 'like', "%{$search}%")
-                             ->orWhere('author', 'like', "%{$search}%");
-            })
+            return $query->where('title', 'like', "%{$search}%")
+                ->orWhere('author', 'like', "%{$search}%");
+        })
             ->latest()
             ->paginate(5);
 
@@ -31,12 +31,18 @@ class BookController extends Controller
         $request->validate([
             'title'  => 'required|string|max:255',
             'author' => 'required|string|max:255',
+            'isbn'   => 'nullable|string|max:255',
+            'stock'  => 'required|integer|min:0',
+            'description' => 'nullable|string',
             'cover'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $book = new Book();
         $book->title  = $request->title;
         $book->author = $request->author;
+        $book->isbn   = $request->isbn;
+        $book->stock  = $request->stock ?? 1;
+        $book->description = $request->description;
 
         if ($request->hasFile('cover')) {
             $path = $request->file('cover')->store('covers', 'public');
@@ -64,11 +70,17 @@ class BookController extends Controller
         $request->validate([
             'title'  => 'required|string|max:255',
             'author' => 'required|string|max:255',
+            'isbn'   => 'nullable|string|max:255',
+            'stock'  => 'required|integer|min:0',
+            'description' => 'nullable|string',
             'cover'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $book->title  = $request->title;
         $book->author = $request->author;
+        $book->isbn   = $request->isbn;
+        $book->stock  = $request->stock;
+        $book->description = $request->description;
 
         if ($request->hasFile('cover')) {
             $path = $request->file('cover')->store('covers', 'public');

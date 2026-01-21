@@ -22,9 +22,9 @@ class BookController extends Controller
         $search = $request->input('search');
 
         $books = Book::when($search, function ($query, $search) {
-                $query->where('title', 'like', "%{$search}%")
-                      ->orWhere('author', 'like', "%{$search}%");
-            })
+            $query->where('title', 'like', "%{$search}%")
+                ->orWhere('author', 'like', "%{$search}%");
+        })
             ->latest()
             ->paginate(10);
 
@@ -39,14 +39,9 @@ class BookController extends Controller
 
     public function book(Request $request, Book $book)
     {
-        Booking::create([
-            'user_id'   => Auth::id(),
-            'book_id'   => $book->id,
-            'booked_at' => now(),
-        ]);
-
+        // Peminjaman sekarang hanya lewat admin
         return redirect()
-            ->route('user.bookings.index')
-            ->with('success', 'Book successfully booked!');
+            ->route('user.books.index')
+            ->with('error', 'Peminjaman buku hanya dapat dilakukan melalui Admin Perpustakaan. Silakan hubungi petugas.');
     }
 }
